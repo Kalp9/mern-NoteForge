@@ -1,10 +1,12 @@
-import 'dotenv/config';
-import express from 'express';
-import cors from 'cors';
-import noteRoutes from './routes/noteRoutes.js'; 
-import { connectDB } from './config/db.js';
+import "dotenv/config";
+import express from "express";
+import cors from "cors";
+import path, { dirname } from "path";
+import { fileURLToPath } from "url";
+import noteRoutes from "./routes/noteRoutes.js";
+import { connectDB } from "./config/db.js";
 
-import rateLimitMiddleware from './Middleware/rateLimiter.js';
+import rateLimitMiddleware from "./Middleware/rateLimiter.js";
 
 connectDB();
 const PORT = process.env.PORT || 3000;
@@ -14,17 +16,29 @@ const app = express();
 app.use(express.json());
 //app.use(rateLimit);
 app.use(rateLimitMiddleware); // Apply rate limiting middleware to all routes
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 // Enable CORS for all routes and origin your frotned url
-app.use(cors({
-    origin: 'http://localhost:5173', // Replace with your frontend URL
-   
-}));
+app.use(
+  cors({
+    origin: "http://localhost:5173", // Replace with your frontend URL
+  }),
+);
 
+app.use("/notes", noteRoutes);
 
-app.use('/notes', noteRoutes);
+if (process.env.NODE_ENV === "production") {
+  app.use(
+    express.static(path.join(__dirname, "../../frontend/Note_project/dist")),
+  );
+  app.use((req, res) => {
+    res.sendFile(
+      path.join(__dirname, "../../frontend/Note_project/dist/index.html")
+    );
+  });
+}
 
-
-
-app.listen(PORT,()=>{
-    console.log(`Server is running on port ${PORT}`);
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });

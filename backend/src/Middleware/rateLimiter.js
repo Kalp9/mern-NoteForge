@@ -1,20 +1,20 @@
-const rateLimitMiddleware = async (req, res, next) => {
-    try {
-        const ip = req.ip || "anonymous";
+import ratelimit from "../config/upstash.js";
 
-        const { success } = await ratelimiter.limit(ip); // ✅ correct
+const rateLimiter = async (req, res, next) => {
+  try {
+    const { success } = await ratelimit.limit("my-rate-limit");
 
-        if (!success) {
-            return res.status(429).json({
-                message: "Too many requests, please try again later."
-            });
-        }
-
-        next(); // ✅ required
-    } catch (error) {
-        console.error("Rate limiter error:", error); // 🔥 log it
-        next(); // ✅ don't block request
+    if (!success) {
+      return res.status(429).json({
+        message: "Too many requests, please try again later",
+      });
     }
+
+    next();
+  } catch (error) {
+    console.log("Rate limit error", error);
+    next(error);
+  }
 };
 
-export default rateLimitMiddleware;
+export default rateLimiter;

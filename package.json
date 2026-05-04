@@ -1,0 +1,27 @@
+
+{
+  "name": "notes_project",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "npm install --prefix backend && npm install --prefix frontend/Note_project && npm run build --prefix frontend/Note_project",
+    "start": "npm run start --prefix backend"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kalp9/mern-NoteForge.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Kalp9/mern-NoteForge/issues"
+  },
+  "homepage": "https://github.com/Kalp9/mern-NoteForge#readme",
+  "description": "",
+  "dependencies": {
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.37.0",
+    "express-rate-limit": "^8.4.1"
+  }
+}

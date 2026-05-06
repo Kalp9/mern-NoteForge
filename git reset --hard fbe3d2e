@@ -1,0 +1,8 @@
+[33m693d185[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;32mbackup-current[m[33m)[m feat: include error message in 500 responses for easier debugging
+[33mfc19f2f[m fix: apply rate limiting per-IP and only on API routes to avoid blocking static files
+[33m17557c7[m fix: resolve route conflict by namespacing API under /api
+[33mde26d34[m fix: axios baseURL duplication bug
+[33mda1aa59[m fix: correct case-sensitive import
+[33mfbe3d2e[m second commit
+[33m8b8d4b9[m Create README.md with project details
+[33me81017e[m initial commit

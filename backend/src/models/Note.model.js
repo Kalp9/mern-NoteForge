@@ -1,18 +1,29 @@
 import mongoose from "mongoose";
 
-const noteSchema = new mongoose.Schema({
-    title:{
-        type:String,
-        required:true
+const noteSchema = new mongoose.Schema(
+  {
+    title: {
+      type: String,
+      required: true,
+      trim: true,
     },
-    content :{
-        type:String,
-        required:true // it means that this field is mandatory and must be provided when creating a new note
-    }
-},{
-    timestamps:true // Automatically adds createdAt and updatedAt fields
-})
+    content: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    owner: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
 
-const Note = mongoose.model('Note',noteSchema);
+const Note = mongoose.model("Note", noteSchema);
 
 export default Note;

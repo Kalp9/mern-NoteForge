@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 import { useState } from "react";
-import { Link, useNavigate, useParams } from "react-router";
-import api from "../lib/axios";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import { ArrowLeftIcon, LoaderIcon, Trash2Icon } from "lucide-react";
+import { deleteNote, fetchNoteById, updateNote } from "../services/noteService";
 
 const NoteDetailPage = () => {
   const [note, setNote] = useState(null);
@@ -17,8 +17,8 @@ const NoteDetailPage = () => {
   useEffect(() => {
     const fetchNote = async () => {
       try {
-        const res = await api.get(`/notes/${id}`);
-        setNote(res.data);
+        const note = await fetchNoteById(id);
+        setNote(note);
       } catch (error) {
         console.log("Error in fetching note", error);
         toast.error("Failed to fetch the note");
@@ -34,7 +34,7 @@ const NoteDetailPage = () => {
     if (!window.confirm("Are you sure you want to delete this note?")) return;
 
     try {
-      await api.delete(`/notes/${id}`);
+      await deleteNote(id);
       toast.success("Note deleted");
       navigate("/");
     } catch (error) {
@@ -52,7 +52,7 @@ const NoteDetailPage = () => {
     setSaving(true);
 
     try {
-      await api.put(`/notes/${id}`, note);
+      await updateNote(id, note);
       toast.success("Note updated successfully");
       navigate("/");
     } catch (error) {

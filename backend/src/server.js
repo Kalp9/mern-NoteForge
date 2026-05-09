@@ -3,10 +3,11 @@ import express from "express";
 import cors from "cors";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
+import authRoutes from "./routes/authRoutes.js";
 import noteRoutes from "./routes/noteRoutes.js";
 import { connectDB } from "./config/db.js";
 
-import rateLimitMiddleware from "./Middleware/rateLimiter.js";
+import rateLimitMiddleware from "./middleware/rateLimiter.js";
 
 connectDB();
 const PORT = process.env.PORT || 3000;
@@ -26,6 +27,7 @@ app.use(
   }),
 );
 
+app.use("/auth", authRoutes);
 app.use("/notes", noteRoutes);
 
 if (process.env.NODE_ENV === "production") {

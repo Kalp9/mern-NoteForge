@@ -1,9 +1,8 @@
-import React, { use } from "react";
 import { useState } from "react";
 import { Link,useNavigate } from "react-router-dom";
 import { ArrowLeftIcon } from "lucide-react";
 import toast from "react-hot-toast";
-import api from "../lib/axios";
+import { createNote } from "../services/noteService";
 
 function CreatePage() {
   const [title, setTitle] = useState("");
@@ -20,8 +19,7 @@ function CreatePage() {
     }
     setIsLoading(true);
     try {
-        // make the api call to create the note
-        await api.post("/notes", { title, content });
+        await createNote({ title, content });
         toast.success("Note created successfully");
         navigate('/');
 

@@ -90,6 +90,12 @@ const LoginPage = () => {
         </button>
       </form>
 
+      <div className="mt-4 text-center text-sm">
+        <Link className="link link-primary font-medium" to="/forgot-password">
+          Forgot password?
+        </Link>
+      </div>
+
       <p className="mt-8 text-center text-sm text-base-content/70">
         New to NoteForge?{" "}
         <Link className="link link-primary font-medium" to="/signup">

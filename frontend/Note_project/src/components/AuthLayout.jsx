@@ -2,8 +2,8 @@ import { NotebookPen } from "lucide-react";
 
 const AuthLayout = ({ children, title, subtitle }) => {
   return (
-    <main className="min-h-screen bg-base-200 px-4 py-8">
-      <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-6xl items-center justify-center">
+    <main className="min-h-[calc(100vh-3.5rem)] bg-base-200 px-4 py-8">
+      <div className="mx-auto flex min-h-[calc(100vh-7.5rem)] max-w-6xl items-center justify-center">
         <div className="grid w-full overflow-hidden rounded-lg border border-base-content/10 bg-base-100 shadow-2xl lg:grid-cols-[0.95fr_1.05fr]">
           <section className="hidden bg-neutral p-10 lg:flex lg:flex-col lg:justify-between">
             <div className="flex items-center gap-3 text-primary">

@@ -11,6 +11,8 @@ const getEmailTransporter = () => {
     host: EMAIL_HOST,
     port: Number(EMAIL_PORT),
     secure: Number(EMAIL_PORT) === 465,
+    // Force IPv4 to avoid IPv6 ENETUNREACH issue
+    family: 4,
     auth: {
       user: EMAIL_USER,
       pass: EMAIL_PASS,

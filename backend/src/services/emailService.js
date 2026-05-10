@@ -1,21 +1,29 @@
 import nodemailer from "nodemailer";
+import dns from "node:dns/promises";
 
-const getEmailTransporter = () => {
+const getEmailTransporter = async () => {
   const { EMAIL_HOST, EMAIL_PORT, EMAIL_USER, EMAIL_PASS } = process.env;
 
   if (!EMAIL_HOST || !EMAIL_PORT || !EMAIL_USER || !EMAIL_PASS) {
     throw new Error("Email SMTP environment variables are not configured");
   }
 
+  const ipv4Addresses = await dns.resolve4(EMAIL_HOST);
+  const smtpHost = ipv4Addresses[0] || EMAIL_HOST;
+
   return nodemailer.createTransport({
-    host: EMAIL_HOST,
+    host: smtpHost,
     port: Number(EMAIL_PORT),
     secure: Number(EMAIL_PORT) === 465,
-    // Force IPv4 to avoid IPv6 ENETUNREACH issue
-    family: 4,
+    connectionTimeout: 15000,
+    greetingTimeout: 15000,
+    socketTimeout: 15000,
     auth: {
       user: EMAIL_USER,
       pass: EMAIL_PASS,
+    },
+    tls: {
+      servername: EMAIL_HOST,
     },
   });
 };
@@ -30,7 +38,7 @@ const escapeHtml = (value = "") => {
 };
 
 export const sendPasswordResetOtpEmail = async ({ to, name, otp }) => {
-  const transporter = getEmailTransporter();
+  const transporter = await getEmailTransporter();
   const from = process.env.EMAIL_FROM || process.env.EMAIL_USER;
   const safeName = escapeHtml(name || "there");
 

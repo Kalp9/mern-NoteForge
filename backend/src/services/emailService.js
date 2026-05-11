@@ -1,7 +1,7 @@
-import nodemailer from "nodemailer";
 import dns from "node:dns/promises";
+import nodemailer from "nodemailer";
 
-const getEmailTransporter = async () => {
+const getSmtpCandidates = async () => {
   const { EMAIL_HOST, EMAIL_PORT, EMAIL_USER, EMAIL_PASS } = process.env;
 
   if (!EMAIL_HOST || !EMAIL_PORT || !EMAIL_USER || !EMAIL_PASS) {
@@ -9,21 +9,33 @@ const getEmailTransporter = async () => {
   }
 
   const ipv4Addresses = await dns.resolve4(EMAIL_HOST);
-  const smtpHost = ipv4Addresses[0] || EMAIL_HOST;
+  const hosts = ipv4Addresses.length ? ipv4Addresses : [EMAIL_HOST];
+  const preferredPort = Number(EMAIL_PORT);
+  const ports = preferredPort === 465 ? [465, 587] : [preferredPort, 465];
 
+  return hosts.flatMap((host) =>
+    ports.map((port) => ({
+      host,
+      port,
+      secure: port === 465,
+    }))
+  );
+};
+
+const createEmailTransporter = ({ host, port, secure }) => {
   return nodemailer.createTransport({
-    host: smtpHost,
-    port: Number(EMAIL_PORT),
-    secure: Number(EMAIL_PORT) === 465,
+    host,
+    port,
+    secure,
     connectionTimeout: 15000,
     greetingTimeout: 15000,
     socketTimeout: 15000,
     auth: {
-      user: EMAIL_USER,
-      pass: EMAIL_PASS,
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
     },
     tls: {
-      servername: EMAIL_HOST,
+      servername: process.env.EMAIL_HOST,
     },
   });
 };
@@ -38,12 +50,9 @@ const escapeHtml = (value = "") => {
 };
 
 export const sendPasswordResetOtpEmail = async ({ to, name, otp }) => {
-  const transporter = await getEmailTransporter();
-  const from = process.env.EMAIL_FROM || process.env.EMAIL_USER;
   const safeName = escapeHtml(name || "there");
-
-  await transporter.sendMail({
-    from,
+  const mailOptions = {
+    from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
     to,
     subject: "Your NoteForge password reset OTP",
     text: [
@@ -53,7 +62,7 @@ export const sendPasswordResetOtpEmail = async ({ to, name, otp }) => {
       "This OTP expires in 10 minutes.",
       "If you did not request this, you can safely ignore this email.",
       "",
-      "Made with ❤ by Kalp Shah.",
+      "Made with \u2764 by Kalp Shah.",
     ].join("\n"),
     html: `
       <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #111827;">
@@ -63,9 +72,25 @@ export const sendPasswordResetOtpEmail = async ({ to, name, otp }) => {
         <p>This OTP expires in 10 minutes.</p>
         <p>If you did not request this, you can safely ignore this email.</p>
         <p style="margin-top: 28px; color: #6b7280; font-size: 13px;">
-          Made with <span style="color: #ef4444;">❤</span> by Kalp Shah.
+          Made with <span style="color: #ef4444;">&#10084;</span> by Kalp Shah.
         </p>
       </div>
     `,
-  });
+  };
+  const candidates = await getSmtpCandidates();
+  let lastError;
+
+  for (const candidate of candidates) {
+    try {
+      const transporter = createEmailTransporter(candidate);
+      return await transporter.sendMail(mailOptions);
+    } catch (error) {
+      lastError = error;
+      console.error(
+        `SMTP send failed via ${candidate.host}:${candidate.port} - ${error.message}`
+      );
+    }
+  }
+
+  throw lastError;
 };
